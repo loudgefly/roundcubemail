@@ -284,10 +284,29 @@ if (is_array($_FILES['_file'])) {
                 if ($email) {
                     $existing = $CONTACTS->search('email', $email, 1, false);
                 }
-                // compare display name if email not found
+
+		// compare display name if email not found, if displaynames are 
+                // the same, we need and additional check on name (vcard N) 
+                // because vcard RFC states both FN and N as mandatory, 
+                // and vcards with same FN but different N fields 
+                // (surname, firstname) should be imported
                 if ((!$existing || !$existing->count) && $vcard->displayname) {
-                    $existing = $CONTACTS->search('name', $vcard->displayname, 1, false);
+		  $existing = $CONTACTS->search('name', $vcard->displayname, 1, false);
+		  if ($existing && $existing->count && ($vcard->firstname || $vcard->surname)){
+		    $fields_to_search = array();
+		    $values_to_search = array();  
+		    if ($vcard->firstname){
+		      $fields_to_search[] = 'firstname';
+		      $values_to_search[] = $vcard->firstname;
+		    }
+		    if ($vcard->surname){
+		      $fields_to_search[] = 'surname';
+		      $values_to_search[] = $vcard->surname;
+		    }
+		    $existing = $CONTACTS->search($fields_to_search, $values_to_search, 1, true);    
+		  }
                 }
+
                 if ($existing && $existing->count) {
                     $IMPORT_STATS->skipped++;
                     $IMPORT_STATS->skipped_names[] = $vcard->displayname ? $vcard->displayname : $email;
