@@ -291,7 +291,7 @@ if (is_array($_FILES['_file'])) {
                 // and vcards with same FN but different N fields 
                 // (surname, firstname) should be imported
                 if ((!$existing || !$existing->count) && $vcard->displayname) {
-		  $existing = $CONTACTS->search('name', $vcard->displayname, 1, false);
+                  $existing = $CONTACTS->search('name', $vcard->displayname, 1, false);
 		  if ($existing && $existing->count && ($vcard->firstname || $vcard->surname)){
 		    $fields_to_search = array();
 		    $values_to_search = array();  
@@ -303,7 +303,7 @@ if (is_array($_FILES['_file'])) {
 		      $fields_to_search[] = 'surname';
 		      $values_to_search[] = $vcard->surname;
 		    }
-		    $existing = $CONTACTS->search($fields_to_search, $values_to_search, 1, true);    
+		    $existing = $CONTACTS->search($fields_to_search, $values_to_search, 1, false);    
 		  }
                 }
 
